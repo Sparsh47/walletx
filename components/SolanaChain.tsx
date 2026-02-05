@@ -34,7 +34,6 @@ export default function SolanaChain() {
       const wallets = JSON.parse(localStorage.getItem("wallets")!);
 
       if (!wallets) {
-        console.log("here");
         const wallets = [
           {
             mnemonic: mnemonic,
@@ -48,15 +47,12 @@ export default function SolanaChain() {
 
         localStorage.setItem("wallets", JSON.stringify(wallets));
       } else {
-        console.log("here fool");
         const newWallet = {
           mnemonic: mnemonic,
           path: path,
           publicKey: publicKey,
           privateKey: privateKey,
         };
-
-        console.log("New Wallet: ", newWallet);
 
         const updatedWallets = [...wallets, newWallet];
 

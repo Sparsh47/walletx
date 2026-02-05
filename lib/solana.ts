@@ -1,10 +1,10 @@
-import { Keypair } from "@solana/web3.js";
 import {
-  generateMnemonic,
-  mnemonicToSeed,
-  validateMnemonic,
-  wordlists,
-} from "bip39";
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from "@solana/web3.js";
+import { generateMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { derivePath } from "ed25519-hd-key";
 import bs58 from "bs58";
 import nacl from "tweetnacl";
@@ -16,6 +16,11 @@ type WalletCreationType = {
   publicKey: string;
   privateKey: string;
 };
+
+const CONNECTION = new Connection(
+  `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_RPC_NET_API_KEY}`,
+  "confirmed",
+);
 
 export const createWallet = async (): Promise<WalletCreationType> => {
   const mnemonic = generateMnemonic();
@@ -96,4 +101,13 @@ export const retrieveWalletsFromPhrase = async (
   }
 
   return wallets;
+};
+
+export const getBalance = async (publicKey: string): Promise<number> => {
+  const key = new PublicKey(publicKey);
+  const balanceInLamports = await CONNECTION.getBalance(key);
+
+  const balanceInSOL = balanceInLamports / LAMPORTS_PER_SOL;
+
+  return balanceInSOL;
 };

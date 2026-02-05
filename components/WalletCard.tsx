@@ -1,6 +1,7 @@
 import { Eye, EyeClosed } from "lucide-react";
 import { copyToClipBoard } from "../lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getBalance } from "@/lib/solana";
 
 type WalletCardProps = {
   walletNumber: number;
@@ -14,10 +15,18 @@ export default function WalletCard({
   publicKey,
 }: WalletCardProps) {
   const [showKey, setShowKey] = useState<boolean>(false);
+  const [balance, setBalance] = useState<number>(1);
 
   const toggleKey = () => {
     setShowKey((prev) => !prev);
   };
+
+  useEffect(() => {
+    (async () => {
+      const walletBallence = await getBalance(publicKey);
+      setBalance(walletBallence);
+    })();
+  }, []);
 
   return (
     <div className="w-full rounded-2xl border border-stone-400 bg-black">
@@ -25,6 +34,9 @@ export default function WalletCard({
         Wallet {walletNumber}
       </h3>
       <div className="w-full p-5 bg-stone-900 rounded-2xl">
+        <h3 className="text-stone-100 text-2xl font-semibold">
+          Balance: {balance} SOL
+        </h3>
         <div className="space-y-3">
           <p className="text-lg text-stone-100">Public Key</p>
           <p
