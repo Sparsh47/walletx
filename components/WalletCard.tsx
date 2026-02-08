@@ -22,11 +22,19 @@ export default function WalletCard({
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       const walletBallence = await getBalance(publicKey);
-      setBalance(walletBallence);
+      if (!cancelled) {
+        setBalance(walletBallence);
+      }
     })();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [publicKey]);
 
   return (
     <div className="w-full rounded-2xl border border-stone-400 bg-black">

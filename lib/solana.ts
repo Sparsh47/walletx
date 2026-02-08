@@ -1,4 +1,5 @@
 import {
+  clusterApiUrl,
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
@@ -17,10 +18,18 @@ type WalletCreationType = {
   privateKey: string;
 };
 
-const CONNECTION = new Connection(
-  `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_RPC_NET_API_KEY}`,
-  "confirmed",
-);
+let CONNECTION: Connection;
+
+if (process.env.NODE_ENV === "production") {
+  console.log("PRODUCTION ENV");
+  CONNECTION = new Connection(
+    `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_RPC_NET_API_KEY}`,
+    "confirmed",
+  );
+} else {
+  console.log("DEV ENV");
+  CONNECTION = new Connection("https://api.devnet.solana.com", "confirmed");
+}
 
 export const createWallet = async (): Promise<WalletCreationType> => {
   const mnemonic = generateMnemonic();
