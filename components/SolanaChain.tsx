@@ -10,13 +10,20 @@ import {
 import WalletCard from "./WalletCard";
 import type { Wallet } from "../contexts/walletContext";
 import Mnemonic from "./Mnemonic";
+import TransactionModal from "./TransactionModal";
 
 export default function SolanaChain() {
   const [secretPhrase, setSecretPhrase] = useState<string>("");
   const [accountCount, setAccountCount] = useState<number>(1);
+  const [openTransactionModal, setOpenTransactionModal] =
+    useState<boolean>(false);
 
   const { recoveryPhrase, setRecoveryPhrase, wallets, setWallets } =
     useWallet();
+
+  const closeModal = () => {
+    setOpenTransactionModal(false);
+  };
 
   const handleWalletGeneration = async () => {
     if (secretPhrase.trim().length > 0) {
@@ -117,58 +124,74 @@ export default function SolanaChain() {
   }, []);
 
   return (
-    <section className="section">
-      {recoveryPhrase && <Mnemonic phrase={recoveryPhrase} />}
-      <div>
-        <h1 className="section-heading">Secret Recovery Phrase</h1>
-        <p className="section-subheading">Save these words in a safe place.</p>
-      </div>
-      {wallets && wallets.length === 0 && (
-        <div className="flex flex-col gap-5">
-          <div className="w-full flex items-center justify-between gap-5">
-            <input
-              type="password"
-              value={secretPhrase}
-              onChange={(e) => setSecretPhrase(e.target.value)}
-              placeholder="Enter your secret phrase (or leave blank to generate)"
-              className="phrase-input"
-            />
-            <button
-              onClick={handleWalletGeneration}
-              className="btn cursor-pointer"
-            >
-              Generate Wallet
-            </button>
-          </div>
-          <div className="w-full flex items-center justify-between gap-5">
-            <input
-              type="number"
-              value={accountCount}
-              onChange={(e) => setAccountCount(Number(e.target.value))}
-              placeholder="Enter number of accounts to retrieve"
-              className="phrase-input"
-            />
-          </div>
+    <>
+      <section className="section">
+        {recoveryPhrase && <Mnemonic phrase={recoveryPhrase} />}
+        <div>
+          <h1 className="section-heading">Secret Recovery Phrase</h1>
+          <p className="section-subheading">
+            Save these words in a safe place.
+          </p>
         </div>
-      )}
-      {wallets && wallets.length > 0 && (
-        <div className="w-full flex items-center justify-between">
-          <h1 className="section-heading">Solana Wallets</h1>
-          <button onClick={handleWalletAddition} className="btn cursor-pointer">
-            Add More
-          </button>
-        </div>
-      )}
-      {wallets &&
-        wallets.length > 0 &&
-        wallets.map((wallet: Wallet, index: number) => (
-          <WalletCard
-            key={index}
-            walletNumber={index + 1}
-            privateKey={wallet.privateKey}
-            publicKey={wallet.publicKey}
-          />
-        ))}
-    </section>
+        {wallets && wallets.length === 0 && (
+          <div className="flex flex-col gap-5">
+            <div className="w-full flex items-center justify-between gap-5">
+              <input
+                type="password"
+                value={secretPhrase}
+                onChange={(e) => setSecretPhrase(e.target.value)}
+                placeholder="Enter your secret phrase (or leave blank to generate)"
+                className="phrase-input"
+              />
+              <button
+                onClick={handleWalletGeneration}
+                className="btn cursor-pointer"
+              >
+                Generate Wallet
+              </button>
+            </div>
+            <div className="w-full flex items-center justify-between gap-5">
+              <input
+                type="number"
+                value={accountCount}
+                onChange={(e) => setAccountCount(Number(e.target.value))}
+                placeholder="Enter number of accounts to retrieve"
+                className="phrase-input"
+              />
+            </div>
+          </div>
+        )}
+        {wallets && wallets.length > 0 && (
+          <div className="w-full flex items-center justify-between">
+            <h1 className="section-heading">Solana Wallets</h1>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setOpenTransactionModal(true)}
+                className="btn cursor-pointer"
+              >
+                Send SOL
+              </button>
+              <button
+                onClick={handleWalletAddition}
+                className="btn cursor-pointer"
+              >
+                Add More
+              </button>
+            </div>
+          </div>
+        )}
+        {wallets &&
+          wallets.length > 0 &&
+          wallets.map((wallet: Wallet, index: number) => (
+            <WalletCard
+              key={index}
+              walletNumber={index + 1}
+              privateKey={wallet.privateKey}
+              publicKey={wallet.publicKey}
+            />
+          ))}
+      </section>
+      {openTransactionModal && <TransactionModal closeModal={closeModal} />}
+    </>
   );
 }

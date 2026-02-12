@@ -1,9 +1,11 @@
 import {
-  clusterApiUrl,
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
+  Transaction,
+  SystemProgram,
+  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { derivePath } from "ed25519-hd-key";
@@ -119,4 +121,28 @@ export const getBalance = async (publicKey: string): Promise<number> => {
   const balanceInSOL = balanceInLamports / LAMPORTS_PER_SOL;
 
   return balanceInSOL;
+};
+
+export const sendSOL = async (
+  privateKey: string,
+  amount: number,
+  receiverKey: string,
+) => {
+  const senderKeyPair = Keypair.fromSecretKey(bs58.decode(privateKey));
+
+  const receiverPublicKey = new PublicKey(receiverKey);
+
+  const transferInstruction = SystemProgram.transfer({
+    fromPubkey: senderKeyPair.publicKey,
+    toPubkey: receiverPublicKey,
+    lamports: amount * LAMPORTS_PER_SOL,
+  });
+
+  const transaction = new Transaction().add(transferInstruction);
+
+  const signature = await sendAndConfirmTransaction(CONNECTION, transaction, [
+    senderKeyPair,
+  ]);
+
+  return signature;
 };
